@@ -1,0 +1,223 @@
+﻿@page "/sample/"
+@inherits PageBase
+
+<PageTitle>BlazorSample</PageTitle>
+
+<NavMenu />
+<main id="main">
+    <section class="breadcrumbs">
+        <div class="container">
+
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>サンプル</h2>
+                <ol>
+                    <li><NavLink href="">Home</NavLink></li>
+                    <li>Home</li>
+                </ol>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="services" class="services">
+        <div class="container">
+        
+            <div class="section-title">
+                <h2>selectでonchangeを使う方法</h2>
+                <p>bindとonchangeは併用出来ない為、bindにset、get関数を用意し、そこのset関数内でイベントの処理をする。</p>
+                <p>詳しくは<a target="_blank" href="https://mulogical.com/?p=1658">こちらで</a></p>
+            </div>
+
+            <div class="row mx-5">
+                <select id="colorSelect" @bind=selectColor style=@_style>
+                    <option value="">選択してください</option>
+                    <option value="青">青です</option>
+                    <option value="赤">赤です</option>
+                    <option value="黄">黄色です</option>
+                </select>
+            </div>
+
+            @if(_selectColorStr.Length > 0)
+            {
+                <div class="row"><div class="col"><p>&emsp;</p></div></div>
+                <div class="row mx-5" data-aos="fade-left">
+                    <p>@_selectColorStr が選択されました。</p>
+                </div>
+            }
+            
+            <div class="row"><div class="col"><p>&emsp;</p></div></div>
+            <div class="row"><div class="col"><p>&emsp;</p></div></div>
+        </div>
+
+        <div class="container">
+
+            <div class="section-title">
+                <h2>radioボタンで双方向にバインド</h2>
+                <p><b>InputRadio、InputRadioGroup</b>を使用する</p>
+                <p>詳しくは<a target="_blank" href="https://mulogical.com/?p=1689">こちらで</a></p>
+            </div>
+
+            @if (_inputPos >= 0 && _inputPos < _inputSampleModels.Count)
+            {
+                string nameRadio = string.Format("No{0}", _inputPos + 1);
+                var sampleModels = _inputSampleModels[_inputPos];
+
+                <div class="row">
+                    <h3>@sampleModels.question</h3>
+                </div>
+                
+                <EditForm Model="sampleModels">
+                    <InputRadioGroup Name=@nameRadio @bind-Value="sampleModels.answer">
+                        <div class="form-group  form-check-inline">
+                            <InputRadio Name=@nameRadio Value="1" class="form-check-input" id="exampleRadio1" />
+                            <label class="form-check-label" for="exampleRadio1">回答1</label>
+                        </div>
+                        <div class="form-group  form-check-inline">
+                            <InputRadio Name=@nameRadio Value="2" class="form-check-input" id="exampleRadio2" />
+                            <label class="form-check-label" for="exampleRadio2">回答2</label>
+                        </div>
+                        <div class="form-group  form-check-inline">
+                            <InputRadio Name=@nameRadio Value="3" class="form-check-input" id="exampleRadio3" />
+                            <label class="form-check-label" for="exampleRadio3">回答3</label>
+                        </div>
+                        <div class="form-group  form-check-inline">
+                            <InputRadio Name=@nameRadio Value="4" class="form-check-input" id="exampleRadio4" />
+                            <label class="form-check-label" for="exampleRadio4">回答4</label>
+                        </div>
+                    </InputRadioGroup>
+                </EditForm>
+            }
+
+            <div class="row"><div class="col"><p>&emsp;</p></div></div>
+                
+            <div class="row mx-5">
+                <div class='btn-toolbar' role="toolbar">
+                    <div class="col">
+                        @if (_isPrev == false)
+                        {
+                            <button class="btn btn-primary" disabled @onclick="OnPrev">戻る</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="OnPrev">戻る</button>
+                        }
+                    </div>
+                    <div class="col">
+                        @if (_isNext == false)
+                        {
+                            <button class="btn btn-primary" disabled @onclick="OnNext">次へ</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="OnNext">次へ</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<Footer />
+
+@code {
+    private string _selectColorStr = string.Empty;
+    private string _style = string.Empty;
+
+    private List<InputSampleModel> _inputSampleModels = new List<InputSampleModel>();
+    private int _inputPos = 0;
+    private bool _isPrev = false;
+    private bool _isNext = true;
+
+    protected override void OnInitialized()
+    {
+        for(int i = 0; i < 5; i++)
+        {
+            InputSampleModel inputSample = new InputSampleModel();
+            inputSample.question = "第" + (i + 1) + "問です。";
+            _inputSampleModels.Add(inputSample);
+        }
+    }
+
+    private string selectColor
+    {
+        get
+        {
+            return _selectColorStr;
+        }
+        set
+        {
+            _selectColorStr = value;
+            //CallJS();
+            OnSelectColor(value, out _style);
+        }
+    }
+
+    private async Task CallJS()
+    {
+        await JSRuntime.InvokeVoidAsync("Color");
+    }
+
+    public void OnSelectColor(string value, out string style)
+    {
+        if (value == "赤")
+        {
+            style = "color:#ff0000";
+        }
+        else if (value == "青")
+        {
+            style = "color:#0000ff";
+        }
+        else if (value == "黄")
+        {
+            style = "color:#ffff00";
+        }
+        else
+        {
+            style = string.Empty;
+        }
+    }
+
+    private void OnPrev()
+    {
+        _inputPos--;
+        if (_inputPos == 0)
+        {
+            _isPrev = false;
+        }
+        else
+        {
+            _isPrev = true;
+        }
+        if (_inputPos == _inputSampleModels.Count - 1)
+        {
+            _isNext = false;
+        }
+        else
+        {
+            _isNext = true;
+        }
+    }
+
+    private void OnNext()
+    {
+        _inputPos++;
+        if (_inputPos == _inputSampleModels.Count - 1)
+        {
+            _isNext = false;
+        }
+        else
+        {
+            _isNext = true;
+        }
+        if (_inputPos == 0)
+        {
+            _isPrev = false;
+        }
+        else
+        {
+            _isPrev = true;
+        }
+    }
+}
+
+

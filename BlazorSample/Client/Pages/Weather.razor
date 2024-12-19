@@ -1,0 +1,67 @@
+﻿@page "/weather/"
+@inherits PageBase
+
+<PageTitle>BlazorSample</PageTitle>
+
+<NavMenu />
+<main id="main">
+    <section class="breadcrumbs">
+        <div class="container">
+
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>天気予報</h2>
+                <ol>
+                    <li><NavLink href="">Home</NavLink></li>
+                    <li>Weather</li>
+                </ol>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="services" class="services">
+        <div class="container">
+
+            <div class="section-title">
+                <h2>地域選択</h2>
+                <p>選択した地域の天気予報が見れます</p>
+            </div>
+
+            @if (_areaData != null)
+            {
+                <div class="row">
+                    @foreach (var area in _areaData.centers.areas)
+                    {
+                        string key = area.Key;
+                        CenterAreaData centerArea = area.Value;
+                        <div class="col-lg-4 col-md-6 icon-box" data-aos="fade-up">
+                            <h4 class="title">@centerArea.name</h4>
+
+                            @foreach(var childCode in centerArea.children)
+                            {
+                                var office = _areaData.offices.areas[childCode];
+                                string linkStr = "weatherdetail/" + childCode + "/" + office.name;
+                                <p class="description"><NavLink href=@linkStr>@office.name</NavLink></p>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+</main>
+<Footer />
+
+@code {
+    JsonDataArea? _areaData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string jsonStr = await ComUtil.GetJsonStr("https://www.jma.go.jp/bosai/common/const/area.json");
+        _areaData = ComUtil.GetJsonDataArea(jsonStr);
+    }
+
+}
+
+

@@ -1,0 +1,33 @@
+﻿<!-- ======= Mobile nav toggle button ======= -->
+<i class="bi bi-list mobile-nav-toggle d-xl-none"></i>
+
+<!-- ======= Header ======= -->
+<header id="header">
+    <div class="d-flex flex-column">
+
+        <div class="profile">
+            <div class="social-links mt-3 text-center">
+            </div>
+        </div>
+
+        <nav id="navbar" class="nav-menu navbar">
+            <ul>
+                <li><NavLink class="nav-link scrollto" href=""><i class="bx bx-home"></i> <span>Home</span></NavLink></li>
+                <li><NavLink class="nav-link scrollto" href="weather"><i class="bx bx-book-content"></i> <span>Weather</span></NavLink></li>
+                <li><NavLink class="nav-link scrollto" href="sample"><i class="bx bx-server"></i> <span>Sample</span></NavLink></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}
+
